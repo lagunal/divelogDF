@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:convert';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -102,13 +103,25 @@ class DatabaseHelper {
     // Add future migrations here
   }
 
+  Map<String, dynamic> _prepareDataForInsert(Map<String, dynamic> data) {
+    final Map<String, dynamic> preparedData = Map<String, dynamic>.from(data);
+    preparedData.forEach((key, value) {
+      if (value is List) {
+        // Serialize List to JSON String for TEXT columns (e.g. nombreBuzos)
+        preparedData[key] = jsonEncode(value);
+      }
+    });
+    return preparedData;
+  }
+
   // Dive Sessions CRUD
   Future<int> insertDiveSession(Map<String, dynamic> session) async {
     try {
       final db = await database;
+      final sessionToInsert = _prepareDataForInsert(session);
       return db.insert(
         'dive_sessions',
-        session,
+        sessionToInsert,
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } catch (e) {
@@ -145,11 +158,12 @@ class DatabaseHelper {
   Future<int> updateDiveSession(Map<String, dynamic> session) async {
     try {
       final db = await database;
+      final sessionToUpdate = _prepareDataForInsert(session);
       return db.update(
         'dive_sessions',
-        session,
+        sessionToUpdate,
         where: 'id = ?',
-        whereArgs: [session['id']],
+        whereArgs: [sessionToUpdate['id']],
       );
     } catch (e) {
       debugPrint('Error updating dive session: $e');
@@ -175,9 +189,10 @@ class DatabaseHelper {
   Future<int> saveUserProfile(Map<String, dynamic> profile) async {
     try {
       final db = await database;
+      final profileToInsert = _prepareDataForInsert(profile);
       return db.insert(
         'user_profiles',
-        profile,
+        profileToInsert,
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } catch (e) {

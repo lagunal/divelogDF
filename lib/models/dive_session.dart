@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class DiveSession {
   final String id;
   final String userId;
@@ -122,47 +124,68 @@ class DiveSession {
     'updatedAt': updatedAt.toIso8601String(),
   };
 
-  factory DiveSession.fromJson(Map<String, dynamic> json) => DiveSession(
-    id: json['id'] as String,
-    userId: json['userId'] as String,
-    cliente: json['cliente'] as String,
-    operadoraBuceo: json['operadoraBuceo'] as String,
-    direccionOperadora: json['direccionOperadora'] as String,
-    lugarBuceo: json['lugarBuceo'] as String,
-    tipoBuceo: json['tipoBuceo'] as String,
-    nombreBuzos: List<String>.from(json['nombreBuzos'] as List),
-    supervisorBuceo: json['supervisorBuceo'] as String,
-    //tablaBuceo: json['tablaBuceo'] as String,
-    //aparatoRespiratorio: json['aparatoRespiratorio'] as String,
-    //presionCilindro: (json['presionCilindro'] as num).toDouble(),
-    //tipoTraje: json['tipoTraje'] as String,
-    //mezclaUtilizada: json['mezclaUtilizada'] as String,
-    estadoMar: json['estadoMar'] as int,
-    visibilidad: (json['visibilidad'] as num).toDouble(),
-    temperaturaSuperior: (json['temperaturaSuperior'] as num).toDouble(),
-    temperaturaAgua: (json['temperaturaAgua'] as num).toDouble(),
-    corrienteAgua: json['corrienteAgua'] as String,
-    tipoAgua: json['tipoAgua'] as String,
-    horaEntrada: DateTime.parse(json['horaEntrada'] as String),
-    maximaProfundidad: (json['maximaProfundidad'] as num).toDouble(),
-    tiempoIntervaloSuperficie: (json['tiempoIntervaloSuperficie'] as num).toDouble(),
-    tiempoFondo: (json['tiempoFondo'] as num).toDouble(),
-    inicioDescompresion: json['inicioDescompresion'] != null 
-      ? DateTime.parse(json['inicioDescompresion'] as String) 
-      : null,
-    descompresionCompleta: json['descompresionCompleta'] != null 
-      ? DateTime.parse(json['descompresionCompleta'] as String) 
-      : null,
-    tiempoTotalInmersion: (json['tiempoTotalInmersion'] as num).toDouble(),
-    horaSalida: DateTime.parse(json['horaSalida'] as String),
-    descripcionTrabajo: json['descripcionTrabajo'] as String,
-    descompresionUtilizada: json['descompresionUtilizada'] as String,
-    enfermedadLesion: json['enfermedadLesion'] as String?,
-    tiempoSupervisionAcumulado: (json['tiempoSupervisionAcumulado'] as num).toDouble(),
-    tiempoBuceoAcumulado: (json['tiempoBuceoAcumulado'] as num).toDouble(),
-    createdAt: DateTime.parse(json['createdAt'] as String),
-    updatedAt: DateTime.parse(json['updatedAt'] as String),
-  );
+  factory DiveSession.fromJson(Map<String, dynamic> json) {
+    // Handle nombreBuzos which can be List (from Web/JSON) or String (from SQLite)
+    List<String> parsedBuzos;
+    if (json['nombreBuzos'] is String) {
+      try {
+        final decoded = jsonDecode(json['nombreBuzos'] as String);
+        if (decoded is List) {
+          parsedBuzos = List<String>.from(decoded);
+        } else {
+          // Fallback if decode result is not a list
+          parsedBuzos = [json['nombreBuzos'] as String];
+        }
+      } catch (e) {
+        // Fallback if not valid JSON
+        parsedBuzos = [json['nombreBuzos'] as String];
+      }
+    } else {
+      parsedBuzos = List<String>.from(json['nombreBuzos'] as List? ?? []);
+    }
+
+    return DiveSession(
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      cliente: json['cliente'] as String,
+      operadoraBuceo: json['operadoraBuceo'] as String,
+      direccionOperadora: json['direccionOperadora'] as String,
+      lugarBuceo: json['lugarBuceo'] as String,
+      tipoBuceo: json['tipoBuceo'] as String,
+      nombreBuzos: parsedBuzos,
+      supervisorBuceo: json['supervisorBuceo'] as String,
+      //tablaBuceo: json['tablaBuceo'] as String,
+      //aparatoRespiratorio: json['aparatoRespiratorio'] as String,
+      //presionCilindro: (json['presionCilindro'] as num).toDouble(),
+      //tipoTraje: json['tipoTraje'] as String,
+      //mezclaUtilizada: json['mezclaUtilizada'] as String,
+      estadoMar: json['estadoMar'] as int,
+      visibilidad: (json['visibilidad'] as num).toDouble(),
+      temperaturaSuperior: (json['temperaturaSuperior'] as num).toDouble(),
+      temperaturaAgua: (json['temperaturaAgua'] as num).toDouble(),
+      corrienteAgua: json['corrienteAgua'] as String,
+      tipoAgua: json['tipoAgua'] as String,
+      horaEntrada: DateTime.parse(json['horaEntrada'] as String),
+      maximaProfundidad: (json['maximaProfundidad'] as num).toDouble(),
+      tiempoIntervaloSuperficie: (json['tiempoIntervaloSuperficie'] as num).toDouble(),
+      tiempoFondo: (json['tiempoFondo'] as num).toDouble(),
+      inicioDescompresion: json['inicioDescompresion'] != null 
+        ? DateTime.parse(json['inicioDescompresion'] as String) 
+        : null,
+      descompresionCompleta: json['descompresionCompleta'] != null 
+        ? DateTime.parse(json['descompresionCompleta'] as String) 
+        : null,
+      tiempoTotalInmersion: (json['tiempoTotalInmersion'] as num).toDouble(),
+      horaSalida: DateTime.parse(json['horaSalida'] as String),
+      descripcionTrabajo: json['descripcionTrabajo'] as String,
+      descompresionUtilizada: json['descompresionUtilizada'] as String,
+      enfermedadLesion: json['enfermedadLesion'] as String?,
+      tiempoSupervisionAcumulado: (json['tiempoSupervisionAcumulado'] as num).toDouble(),
+      tiempoBuceoAcumulado: (json['tiempoBuceoAcumulado'] as num).toDouble(),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+    );
+  }
 
   DiveSession copyWith({
     String? id,

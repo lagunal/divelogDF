@@ -184,6 +184,11 @@ class _AddEditDiveScreenState extends State<AddEditDiveScreen> {
     }
   }
 
+  double _parseDouble(String value) {
+    if (value.trim().isEmpty) return 0.0;
+    return double.tryParse(value) ?? 0.0;
+  }
+
   Future<void> _saveDive() async {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -220,18 +225,18 @@ class _AddEditDiveScreenState extends State<AddEditDiveScreen> {
         //tipoTraje: _tipoTrajeController.text,
         //mezclaUtilizada: _mezclaController.text,
         estadoMar: _estadoMarSeleccionado,
-        visibilidad: double.parse(_visibilidadController.text),
-        temperaturaSuperior: double.parse(_tempSuperiorController.text),
-        temperaturaAgua: double.parse(_tempAguaController.text),
+        visibilidad: _parseDouble(_visibilidadController.text),
+        temperaturaSuperior: _parseDouble(_tempSuperiorController.text),
+        temperaturaAgua: _parseDouble(_tempAguaController.text),
         corrienteAgua: _corrienteController.text,
         tipoAgua: _tipoAguaSeleccionado,
         horaEntrada: _horaEntrada,
-        maximaProfundidad: double.parse(_profundidadController.text),
-        tiempoIntervaloSuperficie: double.parse(_tiempoIntervalController.text),
-        tiempoFondo: double.parse(_tiempoFondoController.text),
+        maximaProfundidad: _parseDouble(_profundidadController.text),
+        tiempoIntervaloSuperficie: _parseDouble(_tiempoIntervalController.text),
+        tiempoFondo: _parseDouble(_tiempoFondoController.text),
         inicioDescompresion: _inicioDescompresion,
         descompresionCompleta: _descompresionCompleta,
-        tiempoTotalInmersion: double.parse(_tiempoTotalController.text),
+        tiempoTotalInmersion: _parseDouble(_tiempoTotalController.text),
         horaSalida: _horaSalida,
         descripcionTrabajo: _descripcionController.text,
         descompresionUtilizada: _descompresionController.text,
@@ -239,8 +244,8 @@ class _AddEditDiveScreenState extends State<AddEditDiveScreen> {
             ? null
             : _enfermedadController.text,
         tiempoSupervisionAcumulado:
-            double.parse(_tiempoSupervisionController.text),
-        tiempoBuceoAcumulado: double.parse(_tiempoBuceoAcumController.text),
+            _parseDouble(_tiempoSupervisionController.text),
+        tiempoBuceoAcumulado: _parseDouble(_tiempoBuceoAcumController.text),
         createdAt: _isEditing ? widget.existingDive!.createdAt : DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -259,7 +264,8 @@ class _AddEditDiveScreenState extends State<AddEditDiveScreen> {
                   _isEditing ? 'Inmersión actualizada' : 'Inmersión guardada')),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('Error saving dive: $e\n$stackTrace');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e')),
@@ -449,102 +455,102 @@ class _AddEditDiveScreenState extends State<AddEditDiveScreen> {
     );
   }
 
- // Widget _buildEquipmentSection() {
- //   return Column(
- //     children: [
-       // _buildTextField(
-       //   controller: _tablaBuceoController,
-       //   label: 'Tabla de Buceo',
-       //   icon: Icons.table_chart,
-       //   required: true,
-       // ),
-       // const SizedBox(height: AppSpacing.md),
-       // _buildTextField(
-       //   controller: _aparatoController,
-       //   label: 'Aparato Respiratorio',
-       //   icon: Icons.masks,
-       //   required: true,
-       // ),
-       // const SizedBox(height: AppSpacing.md),
-       // _buildTextField(
-       //   controller: _presionController,
-       //   label: 'Presión Cilindro (bar)',
-       //   icon: Icons.speed,
-       //   keyboardType: TextInputType.number,
-       //   required: true,
-       // ),
-       // const SizedBox(height: AppSpacing.md),
-       // _buildTextField(
-       //   controller: _tipoTrajeController,
-       //   label: 'Tipo de Traje',
-       //   icon: Icons.checkroom,
-       //   required: true,
-       // ),
-       // const SizedBox(height: AppSpacing.md),
-       // _buildTextField(
-       //   controller: _mezclaController,
-       //   label: 'Mezcla Utilizada',
-       //   icon: Icons.air,
-       //   required: true,
-       // ),
+  // Widget _buildEquipmentSection() {
+  //   return Column(
+  //     children: [
+  //        _buildTextField(
+  //         controller: _tablaBuceoController,
+  //         label: 'Tabla de Buceo',
+  //          icon: Icons.table_chart,
+  //          required: true,
+  //        ),
+  //        const SizedBox(height: AppSpacing.md),
+  //        _buildTextField(
+  //          controller: _aparatoController,
+  //          label: 'Aparato Respiratorio',
+  //          icon: Icons.masks,
+  //          required: true,
+  //        ),
+  //        const SizedBox(height: AppSpacing.md),
+  //        _buildTextField(
+  //          controller: _presionController,
+  //          label: 'Presión Cilindro (bar)',
+  //          icon: Icons.speed,
+  //          keyboardType: TextInputType.number,
+  //          required: true,
+  //        ),
+  //        const SizedBox(height: AppSpacing.md),
+  //        _buildTextField(
+  //          controller: _tipoTrajeController,
+  //          label: 'Tipo de Traje',
+  //          icon: Icons.checkroom,
+  //          required: true,
+  //        ),
+  //        const SizedBox(height: AppSpacing.md),
+  //       // _buildTextField(
+  //       //   controller: _mezclaController,
+  //       //   label: 'Mezcla Utilizada',
+  //       //   icon: Icons.air,
+  //       //   required: true,
+  //       // ),
   //    ],
   //  );
-  //}
+  // }
 
-  Widget _buildWaterConditionsSection() {
-    return Column(
-      children: [
-        _buildDropdown(
-          value: _estadoMarSeleccionado,
-          label: 'Estado del Mar (Escala Beaufort)',
-          icon: Icons.waves,
-          items: List.generate(13, (i) => i),
-          itemLabels:
-              List.generate(13, (i) => '$i - ${_getBeaufortDescription(i)}'),
-          onChanged: (value) => setState(() => _estadoMarSeleccionado = value!),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _buildTextField(
-          controller: _visibilidadController,
-          label: 'Visibilidad (metros)',
-          icon: Icons.visibility,
-          keyboardType: TextInputType.number,
-          required: true,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _buildTextField(
-          controller: _tempSuperiorController,
-          label: 'Temperatura Superior (°C)',
-          icon: Icons.thermostat,
-          keyboardType: TextInputType.number,
-          required: true,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _buildTextField(
-          controller: _tempAguaController,
-          label: 'Temperatura Agua (°C)',
-          icon: Icons.water,
-          keyboardType: TextInputType.number,
-          required: true,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _buildTextField(
-          controller: _corrienteController,
-          label: 'Corriente de Agua',
-          icon: Icons.arrow_forward,
-          required: true,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _buildDropdown(
-          value: _tipoAguaSeleccionado,
-          label: 'Tipo de Agua',
-          icon: Icons.water_drop,
-          items: ['Salada', 'Dulce', 'Salobre'],
-          onChanged: (value) => setState(() => _tipoAguaSeleccionado = value!),
-        ),
-      ],
-    );
-  }
+  // Widget _buildWaterConditionsSection() {
+  //   return Column(
+  //     children: [
+  //       _buildDropdown(
+  //         value: _estadoMarSeleccionado,
+  //         label: 'Estado del Mar (Escala Beaufort)',
+  //         icon: Icons.waves,
+  //         items: List.generate(13, (i) => i),
+  //         itemLabels:
+  //             List.generate(13, (i) => '$i - ${_getBeaufortDescription(i)}'),
+  //         onChanged: (value) => setState(() => _estadoMarSeleccionado = value!),
+  //       ),
+  //       const SizedBox(height: AppSpacing.md),
+  //       _buildTextField(
+  //         controller: _visibilidadController,
+  //         label: 'Visibilidad (metros)',
+  //         icon: Icons.visibility,
+  //         keyboardType: TextInputType.number,
+  //         required: true,
+  //       ),
+  //       const SizedBox(height: AppSpacing.md),
+  //       _buildTextField(
+  //         controller: _tempSuperiorController,
+  //         label: 'Temperatura Superior (°C)',
+  //         icon: Icons.thermostat,
+  //         keyboardType: TextInputType.number,
+  //         required: true,
+  //       ),
+  //       const SizedBox(height: AppSpacing.md),
+  //       _buildTextField(
+  //         controller: _tempAguaController,
+  //         label: 'Temperatura Agua (°C)',
+  //         icon: Icons.water,
+  //         keyboardType: TextInputType.number,
+  //         required: true,
+  //       ),
+  //       const SizedBox(height: AppSpacing.md),
+  //       _buildTextField(
+  //         controller: _corrienteController,
+  //         label: 'Corriente de Agua',
+  //         icon: Icons.arrow_forward,
+  //         required: true,
+  //       ),
+  //       const SizedBox(height: AppSpacing.md),
+  //       _buildDropdown(
+  //         value: _tipoAguaSeleccionado,
+  //         label: 'Tipo de Agua',
+  //         icon: Icons.water_drop,
+  //         items: ['Salada', 'Dulce', 'Salobre'],
+  //         onChanged: (value) => setState(() => _tipoAguaSeleccionado = value!),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildDiveDetailsSection(BuildContext context) {
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
@@ -717,7 +723,7 @@ class _AddEditDiveScreenState extends State<AddEditDiveScreen> {
     required void Function(T?) onChanged,
   }) {
     return DropdownButtonFormField<T>(
-      initialValue: value,
+      value: value,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
